@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         home: const TaskListScreen(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
@@ -31,86 +32,91 @@ class TaskListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[200],
       appBar: AppBar(
         title: const Text('To-Do List'),
+        backgroundColor: Colors.blue[400],
       ),
-      body: Stack(
-        children: [
-          Consumer<TaskProvider>(
-            builder: (context, taskProvider, child) {
-              return ListView.builder(
-                itemCount: taskProvider.tasks.length,
-                itemBuilder: (context, index) {
-                  final task = taskProvider.tasks[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                        task.name,
-                        style: TextStyle(
-                          decoration: task.isCompleted
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
+      body: Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: Stack(
+          children: [
+            Consumer<TaskProvider>(
+              builder: (context, taskProvider, child) {
+                return ListView.builder(
+                  itemCount: taskProvider.tasks.length,
+                  itemBuilder: (context, index) {
+                    final task = taskProvider.tasks[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(
+                          task.name,
+                          style: TextStyle(
+                            decoration: task.isCompleted
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
+                        ),
+                        leading: Checkbox(
+                          value: task.isCompleted,
+                          onChanged: (value) {
+                            taskProvider.toggleTaskCompletion(index);
+                          },
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Tooltip(
+                              message: 'Edit Task',
+                              child: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  _showTaskDialog(context, taskProvider, task, index);
+                                },
+                              ),
+                            ),
+                            Tooltip(
+                              message: 'Delete Task',
+                              child: IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  taskProvider.deleteTask(index);
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      leading: Checkbox(
-                        value: task.isCompleted,
-                        onChanged: (value) {
-                          taskProvider.toggleTaskCompletion(index);
-                        },
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Tooltip(
-                            message: 'Edit Task',
-                            child: IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                _showTaskDialog(context, taskProvider, task, index);
-                              },
-                            ),
-                          ),
-                          Tooltip(
-                            message: 'Delete Task',
-                            child: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                taskProvider.deleteTask(index);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-          Positioned(
-             bottom: 18,
-            right: 16,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                onPressed: () {
-                  _showGuide(context);
-                },
-                child: const Icon(Icons.help),
-              ),
-              SizedBox(height: 20,),
-                FloatingActionButton(onPressed:() {
-            _showTaskDialog(context, context.read<TaskProvider>(), null, null);
-                    },
-                child: const Icon(Icons.add),
-                ),
-                
-              ],
+                    );
+                  },
+                );
+              },
             ),
-          ),
-          // Guide button
-          
-        ],
+            Positioned(
+               bottom: 18,
+              right: 16,
+              child: Column(
+                children: [
+                  FloatingActionButton(
+                  onPressed: () {
+                    _showGuide(context);
+                  },
+                  child: const Icon(Icons.help),
+                ),
+                SizedBox(height: 20,),
+                  FloatingActionButton(onPressed:() {
+              _showTaskDialog(context, context.read<TaskProvider>(), null, null);
+                      },
+                  child: const Icon(Icons.add),
+                  ),
+                  
+                ],
+              ),
+            ),
+            // Guide button
+            
+          ],
+        ),
       ),
      
     );
